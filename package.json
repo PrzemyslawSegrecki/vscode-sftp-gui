@@ -1,0 +1,95 @@
+{
+  "name": "sftp-gui",
+  "displayName": "SFTP GUI Manager",
+  "description": "Graficzny manager połączeń SFTP/FTP – edytor sftp.json z GUI + Diff Folder with Remote",
+  "version": "1.2.0",
+  "publisher": "opencode",
+  "author": "OpenCode Przemysław Segrecki",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "sftp",
+    "ftp",
+    "gui",
+    "config",
+    "diff"
+  ],
+  "icon": "resources/icon.png",
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onView:sftpGuiView",
+    "workspaceContains:.vscode/sftp.json"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sftpGui",
+          "title": "SFTP GUI",
+          "icon": "resources/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sftpGui": [
+        {
+          "type": "webview",
+          "id": "sftpGuiView",
+          "name": "Manager Połączeń"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sftpGui.openManager",
+        "title": "Otwórz Manager Połączeń",
+        "category": "SFTP GUI"
+      },
+      {
+        "command": "sftpGui.addProfile",
+        "title": "Dodaj Profil",
+        "category": "SFTP GUI"
+      },
+      {
+        "command": "sftpGui.diffFolder",
+        "title": "Diff Folder with Remote",
+        "category": "SFTP GUI"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "sftpGui.diffFolder",
+          "group": "3_compare",
+          "when": "sftp.enabled && explorerResourceIsFolder"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "sftpGui.diffFolder",
+          "when": "sftp.enabled"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run build && npx -y @vscode/vsce package --no-dependencies",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.74.0",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "basic-ftp": "^5.2.0",
+    "ssh2": "^1.15.0"
+  }
+}
