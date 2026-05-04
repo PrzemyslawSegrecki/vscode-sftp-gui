@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1] - 2026-05-04
+
+### Poprawione
+
+- Naprawiono problem z usuwaniem komentarzy z pliku `sftp.json` podczas zapisu poprzez GUI (wdrożono pakiet `comment-json`).
+- Naprawiono problem z kasowaniem nieznanych / zaawansowanych parametrów z konfiguracji przy edycji formularza.
+
 ## [1.2.0] - 2026-03-05
 
 ### Dodane

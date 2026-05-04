@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as commentJson from 'comment-json';
 
 export interface SftpProfile {
   name?: string;
@@ -89,7 +90,7 @@ export class SftpConfigProvider {
     try {
       const doc = vscode.workspace.textDocuments.find(d => d.uri.fsPath === fileUri.fsPath);
       if (doc) {
-        return JSON.parse(doc.getText()) as SftpProfile;
+        return commentJson.parse(doc.getText()) as SftpProfile;
       }
     } catch {
       // Ignoruj błędy parsowania w locie
@@ -103,7 +104,7 @@ export class SftpConfigProvider {
 
     try {
       const content = await fs.promises.readFile(configPath, 'utf-8');
-      return JSON.parse(content) as SftpProfile;
+      return commentJson.parse(content) as SftpProfile;
     } catch {
       return null;
     }
@@ -142,9 +143,28 @@ export class SftpConfigProvider {
 
   /** Aktualizuje treść dokumentu BEZ zapisu (robi go "dirty") */
   async updateDocument(doc: vscode.TextDocument, config: SftpProfile): Promise<void> {
-    const newContent = JSON.stringify(config, null, 2);
     const currentContent = doc.getText();
-    if (newContent === currentContent) { return; } // bez zmian
+    let parsed: any;
+    try {
+      parsed = commentJson.parse(currentContent);
+    } catch {
+      parsed = {};
+    }
+
+    // Usuń z parsed klucze, których brakuje w nowym configu (z zachowaniem reference do comment-json)
+    for (const k of Object.keys(parsed)) {
+      if (!config.hasOwnProperty(k)) {
+        delete parsed[k];
+      }
+    }
+
+    // Zaktualizuj/dodaj klucze z config
+    for (const k of Object.keys(config)) {
+      parsed[k] = (config as any)[k];
+    }
+
+    const newContent = commentJson.stringify(parsed, null, 2);
+    if (newContent === currentContent) { return; }
 
     const edit = new vscode.WorkspaceEdit();
     const fullRange = new vscode.Range(

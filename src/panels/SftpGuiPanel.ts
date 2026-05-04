@@ -1,4 +1,4 @@
-﻿import * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import * as path from 'path';
 import { SftpConfigProvider, SftpProfile } from '../sftpConfigProvider';
 import { RemoteDirectoryPicker } from '../RemoteDirectoryPicker';
@@ -1003,14 +1003,23 @@ body {
   function saveCurrentToMemory() {
     if (!fullConfig) return;
 
+    const managedKeys = ['name', 'protocol', 'color', 'host', 'port', 'username', 'password', 'remotePath', 'uploadOnSave', 'useTempFile', 'downloadOnOpen', 'ignore', 'ignoreFile', 'watcher', 'concurrency', 'connectTimeout', 'remoteTimeOffsetInHours', 'syncOption', 'privateKeyPath', 'passphrase', 'agent', 'sshConfigPath', 'interactiveAuth', 'secure'];
+
     if (activeProfile === '__base__') {
       const data = collectFormData(false);
-      const profiles = fullConfig.profiles;
-      const defaultProfile = fullConfig.defaultProfile;
-      Object.keys(fullConfig).forEach(k => delete fullConfig[k]);
-      Object.assign(fullConfig, data);
-      if (profiles && Object.keys(profiles).length > 0) fullConfig.profiles = profiles;
-      if (defaultProfile) fullConfig.defaultProfile = defaultProfile;
+      
+      // Aktualizuj klucze zarządzane przez GUI, nie niszcząc pozostałych
+      managedKeys.forEach(k => {
+        if (data.hasOwnProperty(k)) {
+          if (data[k] === undefined) {
+            delete fullConfig[k];
+          } else {
+            fullConfig[k] = data[k];
+          }
+        } else {
+          delete fullConfig[k];
+        }
+      });
 
       // Aktualizuj defaultProfile z selecta
       const dpVal = getVal('f_defaultProfile');
@@ -1018,7 +1027,21 @@ body {
       else delete fullConfig.defaultProfile;
     } else {
       if (!fullConfig.profiles) fullConfig.profiles = {};
-      fullConfig.profiles[activeProfile] = collectFormData(true);
+      const currentProfile = fullConfig.profiles[activeProfile] || {};
+      const profileData = collectFormData(true);
+      
+      managedKeys.forEach(k => {
+        if (profileData.hasOwnProperty(k)) {
+          if (profileData[k] === undefined) {
+            delete currentProfile[k];
+          } else {
+            currentProfile[k] = profileData[k];
+          }
+        } else {
+          delete currentProfile[k];
+        }
+      });
+      fullConfig.profiles[activeProfile] = currentProfile;
     }
     
     // Zawsze wysyłaj liveUpdate po aktualizacji pamięci

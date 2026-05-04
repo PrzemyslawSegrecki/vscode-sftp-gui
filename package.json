@@ -2,7 +2,7 @@
   "name": "sftp-gui",
   "displayName": "SFTP GUI Manager",
   "description": "Graficzny manager połączeń SFTP/FTP – edytor sftp.json z GUI + Diff Folder with Remote",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "opencode",
   "author": "OpenCode Przemysław Segrecki",
   "engines": {
@@ -90,6 +90,7 @@
   },
   "dependencies": {
     "basic-ftp": "^5.2.0",
+    "comment-json": "^5.0.0",
     "ssh2": "^1.15.0"
   }
 }
